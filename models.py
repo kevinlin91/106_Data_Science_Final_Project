@@ -200,6 +200,7 @@ def occ_onehot(pokemon, combats):
     labels = np.array(labels)
     kf = KFold(n_splits=5)
     clf = OneClassSVM()
+    all_scores = list()
     for train_index, test_index in kf.split(training):
         X_train, X_test = training[train_index], training[test_index]
         Y_test = np.ones(len(test_index))
