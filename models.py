@@ -210,7 +210,7 @@ def occ_onehot(pokemon, combats):
         y_pred = [0 if x==-1 else 1 for x in y_pred]
         Y_test = [int(x) for x in Y_test]
         scores= [precision_score(Y_test, y_pred), recall_score(Y_test, y_pred), f1_score(Y_test, y_pred)]
-        all_scores.append(scores
+        all_scores.append(scores)
     print (all_scores)
     pickle.dump(all_scores, open('scores_occ_oneoht.pickle','wb'))
 if __name__=='__main__':
