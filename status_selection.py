@@ -55,7 +55,7 @@ def individual_status(feature_matrix,labels):
        color="b", align="center")
     plt.xticks(range(len(status)), new_status)
     plt.xlim([-1, len(status)])
-    plt.show()
+    plt.savefig('./status_feature_importance.png')
     
 
 if __name__=='__main__':

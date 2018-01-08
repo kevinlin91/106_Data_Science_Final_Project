@@ -177,8 +177,9 @@ def occ(pokemon, combats):
     training, labels = get_occ_feature_matrix(pokemon, combats)
     training = np.array(training)
     labels = np.array(labels)
-    kf = KFold(n_splits=2)
+    kf = KFold(n_splits=5)
     clf = OneClassSVM()
+    all_scores = list()
     for train_index, test_index in kf.split(training):
         X_train, X_test = training[train_index], training[test_index]
         Y_test = np.ones(len(test_index))
@@ -186,16 +187,18 @@ def occ(pokemon, combats):
         y_pred = clf.predict(X_test)
         prob_pos = clf.decision_function(X_test)
         prob_pos = (prob_pos - prob_pos.min()) / (prob_pos.max() - prob_pos.min())
-        scores= [precision_score(Y_test, y_pred), recall_score(Y_test, y_pred), f1_score(Y_test, y_pred)]
         y_pred = [0 if x==-1 else 1 for x in y_pred]
         Y_test = [int(x) for x in Y_test]
-        print (scores)        
+        scores= [precision_score(Y_test, y_pred), recall_score(Y_test, y_pred), f1_score(Y_test, y_pred)]        
+        all_scores.append(scores)
+    print (all_scores)
+    pickle.dump(all_scores, open('scores_occ.pickle','wb'))
 
 def occ_onehot(pokemon, combats):
     training, labels = get_occ_feature_matrix_onehot(pokemon, combats)
     training = np.array(training)
     labels = np.array(labels)
-    kf = KFold(n_splits=2)
+    kf = KFold(n_splits=5)
     clf = OneClassSVM()
     for train_index, test_index in kf.split(training):
         X_train, X_test = training[train_index], training[test_index]
@@ -204,11 +207,12 @@ def occ_onehot(pokemon, combats):
         y_pred = clf.predict(X_test)
         prob_pos = clf.decision_function(X_test)
         prob_pos = (prob_pos - prob_pos.min()) / (prob_pos.max() - prob_pos.min())
-        scores= [precision_score(Y_test, y_pred), recall_score(Y_test, y_pred), f1_score(Y_test, y_pred)]
         y_pred = [0 if x==-1 else 1 for x in y_pred]
         Y_test = [int(x) for x in Y_test]
-        print (scores)   
-        
+        scores= [precision_score(Y_test, y_pred), recall_score(Y_test, y_pred), f1_score(Y_test, y_pred)]
+        all_scores.append(scores
+    print (all_scores)
+    pickle.dump(all_scores, open('scores_occ_oneoht.pickle','wb'))
 if __name__=='__main__':
     pokemon = pd.read_csv('./pokemon.csv')
     combats = pd.read_csv('./new_combats.csv')
@@ -217,5 +221,5 @@ if __name__=='__main__':
     #training, labels = get_feature_matrix(pokemon, combats)
     #model(pokemon, combats)
     #model_onehot(pokemon, combats)
-    #occ(pokemon, combats)
+    occ(pokemon, combats)
     occ_onehot(pokemon, combats)

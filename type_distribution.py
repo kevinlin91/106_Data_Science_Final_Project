@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 def type_distribution(_type):
     type_count = _type.value_counts()
     type_count.plot(kind='bar')
-    plt.show()
+    plt.savefig('type_distribution.png')
 
 def type_combat(pokemon, combats):
     type_pokemon = pokemon[ ['#', 'Type 1'] ]
@@ -30,9 +30,17 @@ def type_combat(pokemon, combats):
         tmp.index = type_list
         tmp.drop(type_name,inplace=True)
         tmp.plot(kind='bar',title=type_name)
-        plt.show()
-    
-        
+        plt.savefig('./%s.png'%type_name)
+
+def type_both(pokemon):
+    type_both = pokemon[ ['Type 1', 'Type 2'] ]
+    #print (type_both['Type 2'].isnull().values.any())
+    #print (type_both['Type 1'].isnull().values.any())
+    tmp = type_both['Type 2'].isnull().value_counts()
+    tmp.index = ['One', 'Both']
+    tmp.cloumn = ['count']
+    tmp.plot(kind='bar')
+    plt.savefig('./type_both.png')
 
 
 
@@ -42,3 +50,4 @@ if __name__=='__main__':
     #type_distribution(pokemon_data['Type 1'])
     #type_distribution(pokemon_data['Type 2'])
     type_combat(pokemon_data, combat_data)
+    #type_both(pokemon_data)

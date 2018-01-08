@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 def legendary_distribution(Legendary):
     legend_count = Legendary.value_counts()
-    legend_count.plot(kind='bar')    
-    plt.show()
+    legend_count.plot(kind='bar', title='legendary distribution')    
+    plt.savefig('./legendary_distribution.png')
 
 def legendary_compare(pokemon):
     legendary = pokemon[ pokemon['Legendary'] == True][ ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed'] ]
@@ -13,8 +13,8 @@ def legendary_compare(pokemon):
     index = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed']
     combine = pd.concat([legendary.mean(), non_legendary.mean()], axis=1)
     combine.columns = ['legendary', 'non_legendary']
-    combine.plot(kind='bar')
-    plt.show()
+    combine.plot(kind='bar', title='legendary status compare')
+    plt.savefig('./legendary_compare.png')
 
 def legendary_importance(pokemon,combats):
     legendary_id = pokemon[ pokemon['Legendary'] == True]['#'].tolist()
@@ -37,7 +37,7 @@ def legendary_importance(pokemon,combats):
             both +=1
     tmp = pd.DataFrame({'count':[legendary_win,legendary_lose], 'Result':['win','lose']})
     tmp.plot(kind='bar', x='Result', y='count', title='legendary battle with others')
-    plt.show()
+    plt.savefig('./legendary_battle.png')
     
 
 def generation_importance(pokemon, combats):
@@ -65,16 +65,14 @@ def generation_importance(pokemon, combats):
         tmp.index = generation_list
         tmp.drop(generation_name,inplace=True)
         tmp.plot(kind='bar', title='Generation '+str(generation_name))
-        plt.show()
+        plt.savefig('generation_%d'%generation_name)
 
 if __name__=='__main__':
     pokemon_data = pd.read_csv('./pokemon.csv')
     combat_data = pd.read_csv('./new_combats.csv')
-    #legendary_distribution(pokemon_data['Legendary'])
-    #type_distribution(pokemon_data['Type 1'])
-    #type_distribution(pokemon_data['Type 2'])
-    #legendary_compare(pokemon_data)
-    #legendary_importance(pokemon_data, combat_data)
+    legendary_distribution(pokemon_data['Legendary'])
+    legendary_compare(pokemon_data)
+    legendary_importance(pokemon_data, combat_data)
     generation_importance(pokemon_data, combat_data)
     
 
