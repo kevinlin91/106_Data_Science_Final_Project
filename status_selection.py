@@ -9,7 +9,7 @@ def status_feature_matrix(pokemon, combats):
     status = pokemon[ ['#', 'HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed']]
     feature_matrix = pd.DataFrame()
     labels = list()
-    for index, row in combats.head(100).iterrows():
+    for index, row in combats.iterrows():
         first = status[ status['#']==row['First_pokemon']][ ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed'] ]
         first.index = [index]
         second = status[ status['#']==row['Second_pokemon']][ ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed'] ]
@@ -39,7 +39,7 @@ def individual_status(feature_matrix,labels):
     #score_df = pd.DataFrame(all_score, columns = ['score', 'feature'])
     #print (score_df)
     tmp = [a+b+c+d+e+f for a,b,c,d,e,f in zip(training[0],training[1],training[2],training[3],training[4],training[5])]
-    forest.fit(tmp,labels[:100])
+    forest.fit(tmp,labels)
     importances = forest.feature_importances_
     std = np.std([tree.feature_importances_ for tree in forest.estimators_],
              axis=0)
