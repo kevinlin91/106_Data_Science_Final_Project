@@ -46,7 +46,7 @@ def generation_importance(pokemon, combats):
     generation_new = [ [[0,0] for x in generation_list] for y in generation_list]
     generate_length = len(generation_list)
 
-    for index, row in combats.head(100).iterrows():
+    for index, row in combats.iterrows():
         first = generation[ generation['#']==row['First_pokemon']]['Generation'].values[0] - 1
         second = generation[ generation['#']==row['Second_pokemon']]['Generation'].values[0] - 1
         label = row['Winner']
@@ -70,9 +70,9 @@ def generation_importance(pokemon, combats):
 if __name__=='__main__':
     pokemon_data = pd.read_csv('./pokemon.csv')
     combat_data = pd.read_csv('./new_combats.csv')
-    legendary_distribution(pokemon_data['Legendary'])
-    legendary_compare(pokemon_data)
-    legendary_importance(pokemon_data, combat_data)
+    #legendary_distribution(pokemon_data['Legendary'])
+    #legendary_compare(pokemon_data)
+    #legendary_importance(pokemon_data, combat_data)
     generation_importance(pokemon_data, combat_data)
     
 
