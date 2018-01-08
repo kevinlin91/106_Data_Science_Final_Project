@@ -72,7 +72,7 @@ def model(pokemon,combats):
     rf_clf = RandomForestClassifier()
     ada_clf = AdaBoostClassifier()
     gbdt_clf = GradientBoostingClassifier()
-    kf = KFold(n_splits=2)
+    kf = KFold(n_splits=5)
     all_scores = list()
     for train_index, test_index in kf.split(training):
         X_train, X_test = training[train_index], training[test_index]
@@ -100,7 +100,7 @@ def model_onehot(pokemon,combats):
     rf_clf = RandomForestClassifier()
     ada_clf = AdaBoostClassifier()
     gbdt_clf = GradientBoostingClassifier()
-    kf = KFold(n_splits=2)
+    kf = KFold(n_splits=5)
     all_scores = list()
     for train_index, test_index in kf.split(training):
         X_train, X_test = training[train_index], training[test_index]
