@@ -1,5 +1,5 @@
 from sklearn.preprocessing import MultiLabelBinarizer, MinMaxScaler
-from sklearn.svm import SVC
+from sklearn.svm import SVC, OneClassSVM
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
@@ -64,6 +64,59 @@ def get_feature_matrix(pokemon, combats):
     return training, labels
 
 
+def get_occ_feature_matrix_onehot(pokemen, combats):
+    type_feature = one_hot_encoding(pokemon['Type 1'])
+    generation_feature = one_hot_encoding(pokemon['Generation'])
+    speed_feature = MinMaxScaler().fit_transform([[a] for a in pokemon['Speed'].tolist()])
+    speed_feature = [round(float(a[0]),3) for a in speed_feature]
+    legendary_feature = pokemon['Legendary'].tolist()
+    legendary_feature = [int(x==True) for x in legendary_feature]
+    training = list()
+    labels = list()
+    for index, row in combats.iterrows():
+        first_index = row['First_pokemon']-1
+        second_index = row['Second_pokemon']-1
+        label = row['Winner']
+        first_feature = type_feature[first_index].tolist() + [speed_feature[first_index]] + generation_feature[first_index].tolist() + [legendary_feature[first_index]]
+        second_feature =  type_feature[second_index].tolist() + [speed_feature[second_index]] + generation_feature[second_index].tolist() + [legendary_feature[second_index]]
+        
+        if label:
+            final_feature = first_feature + second_feature
+        else:
+            final_feature = second_feature + first_feature
+        training.append(final_feature)
+        labels.append(label)
+        
+    return training, labels
+
+
+
+def get_occ_feature_matrix(pokemon, combats):
+    type_feature = pokemon['Type 1'].tolist()
+    type_list = pokemon['Type 1'].unique().tolist()
+    type_feature = [type_list.index(x) for x in type_feature]
+    generation_feature = pokemon['Generation'].tolist()
+    speed_feature = MinMaxScaler().fit_transform([[a] for a in pokemon['Speed'].tolist()])
+    speed_feature = [round(float(a[0]),3) for a in speed_feature]
+    legendary_feature = pokemon['Legendary'].tolist()
+    legendary_feature = [int(x==True) for x in legendary_feature]
+    training = list()
+    labels = list()
+    for index, row in combats.iterrows():
+        first_index = row['First_pokemon']-1
+        second_index = row['Second_pokemon']-1
+        first_feature = [type_feature[first_index]] + [speed_feature[first_index]] + [generation_feature[first_index]] + [legendary_feature[first_index]]
+        second_feature =  [type_feature[second_index]] + [speed_feature[second_index]] + [generation_feature[second_index]] + [legendary_feature[second_index]]
+        label = row['Winner']
+        if label:
+            final_feature = first_feature + second_feature
+        else:
+            final_feature = second_feature + first_feature
+        training.append(final_feature)
+        labels.append(label)
+        
+    return training, labels
+
 def model(pokemon,combats):
     training, labels = get_feature_matrix(pokemon, combats)
     training = np.array(training)
@@ -119,13 +172,50 @@ def model_onehot(pokemon,combats):
             print (scores)
     print (all_scores)
     pickle.dump(all_scores, open('scores_onehot.pickle','wb'))
-    
 
+def occ(pokemon, combats):
+    training, labels = get_occ_feature_matrix(pokemon, combats)
+    training = np.array(training)
+    labels = np.array(labels)
+    kf = KFold(n_splits=2)
+    clf = OneClassSVM()
+    for train_index, test_index in kf.split(training):
+        X_train, X_test = training[train_index], training[test_index]
+        Y_test = np.ones(len(test_index))
+        clf.fit(X_train)
+        y_pred = clf.predict(X_test)
+        prob_pos = clf.decision_function(X_test)
+        prob_pos = (prob_pos - prob_pos.min()) / (prob_pos.max() - prob_pos.min())
+        scores= [precision_score(Y_test, y_pred), recall_score(Y_test, y_pred), f1_score(Y_test, y_pred)]
+        y_pred = [0 if x==-1 else 1 for x in y_pred]
+        Y_test = [int(x) for x in Y_test]
+        print (scores)        
+
+def occ_onehot(pokemon, combats):
+    training, labels = get_occ_feature_matrix_onehot(pokemon, combats)
+    training = np.array(training)
+    labels = np.array(labels)
+    kf = KFold(n_splits=2)
+    clf = OneClassSVM()
+    for train_index, test_index in kf.split(training):
+        X_train, X_test = training[train_index], training[test_index]
+        Y_test = np.ones(len(test_index))
+        clf.fit(X_train)
+        y_pred = clf.predict(X_test)
+        prob_pos = clf.decision_function(X_test)
+        prob_pos = (prob_pos - prob_pos.min()) / (prob_pos.max() - prob_pos.min())
+        scores= [precision_score(Y_test, y_pred), recall_score(Y_test, y_pred), f1_score(Y_test, y_pred)]
+        y_pred = [0 if x==-1 else 1 for x in y_pred]
+        Y_test = [int(x) for x in Y_test]
+        print (scores)   
+        
 if __name__=='__main__':
     pokemon = pd.read_csv('./pokemon.csv')
     combats = pd.read_csv('./new_combats.csv')
     #one_hot_encoding(pokemon['Type 1'])
     #training, labels = get_feature_matrix_onehot(pokemon, combats)
     #training, labels = get_feature_matrix(pokemon, combats)
-    model(pokemon, combats)
-    model_onehot(pokemon, combats)
+    #model(pokemon, combats)
+    #model_onehot(pokemon, combats)
+    #occ(pokemon, combats)
+    occ_onehot(pokemon, combats)
