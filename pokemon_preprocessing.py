@@ -38,25 +38,17 @@ def legendary_importance(pokemon,combats):
     tmp = pd.DataFrame({'count':[legendary_win,legendary_lose], 'Result':['win','lose']})
     tmp.plot(kind='bar', x='Result', y='count', title='legendary battle with others')
     plt.show()
-
-def type_distribution(_type):
-    type_count = _type.value_counts()
-    type_count.plot(kind='bar')
-    plt.show()
     
 
 def generation_importance(pokemon, combats):
     generation = pokemon[ ['#','Generation'] ]
-    generation_new = [  [ [0,0],[0,0],[0,0],[0,0],[0,0],[0,0] ],
-                        [ [0,0],[0,0],[0,0],[0,0],[0,0],[0,0] ],
-                        [ [0,0],[0,0],[0,0],[0,0],[0,0],[0,0] ],
-                        [ [0,0],[0,0],[0,0],[0,0],[0,0],[0,0] ],
-                        [ [0,0],[0,0],[0,0],[0,0],[0,0],[0,0] ],
-                        [ [0,0],[0,0],[0,0],[0,0],[0,0],[0,0] ] ]
-    
-    for index, row in combats.head(1000).iterrows():
+    generation_list = pokemon['Generation'].unique().tolist()
+    generation_new = [ [[0,0] for x in generation_list] for y in generation_list]
+    generate_length = len(generation_list)
+
+    for index, row in combats.head(100).iterrows():
         first = generation[ generation['#']==row['First_pokemon']]['Generation'].values[0] - 1
-        second = generation[ generation['#']==row['First_pokemon']]['Generation'].values[0] - 1
+        second = generation[ generation['#']==row['Second_pokemon']]['Generation'].values[0] - 1
         label = row['Winner']
         if label:
             generation_new[second][first][0] +=1
@@ -64,41 +56,25 @@ def generation_importance(pokemon, combats):
         else:
             generation_new[second][first][1] +=1
             generation_new[first][second][0] +=1
-    
-    df_generation_1 = pd.DataFrame({'1':generation_new[0][0], '2':generation_new[0][1], '3':generation_new[0][2], '4':generation_new[0][3], '5':generation_new[0][4], '6':generation_new[0][5]})
-    df_generation_1.index = ['Win', 'Lose']
-    df_generation_2 = pd.DataFrame({'1':generation_new[1][0], '2':generation_new[1][1], '3':generation_new[1][2], '4':generation_new[1][3], '5':generation_new[1][4], '6':generation_new[1][5]})
-    df_generation_2.index = ['Win', 'Lose']
-    df_generation_3 = pd.DataFrame({'1':generation_new[2][0], '2':generation_new[2][1], '3':generation_new[2][2], '4':generation_new[2][3], '5':generation_new[2][4], '6':generation_new[2][5]})
-    df_generation_3.index = ['Win', 'Lose']
-    df_generation_4 = pd.DataFrame({'1':generation_new[3][0], '2':generation_new[3][1], '3':generation_new[3][2], '4':generation_new[3][3], '5':generation_new[3][4], '6':generation_new[3][5]})
-    df_generation_4.index = ['Win', 'Lose']
-    df_generation_5 = pd.DataFrame({'1':generation_new[4][0], '2':generation_new[4][1], '3':generation_new[4][2], '4':generation_new[4][3], '5':generation_new[4][4], '6':generation_new[4][5]})
-    df_generation_5.index = ['Win', 'Lose']
-    df_generation_6 = pd.DataFrame({'1':generation_new[5][0], '2':generation_new[5][1], '3':generation_new[5][2], '4':generation_new[5][3], '5':generation_new[5][4], '6':generation_new[5][5]})
-    df_generation_6.index = ['Win', 'Lose']
-    df_generation_1.plot(kind='bar', title='First_Generation')
-    plt.show()
-    df_generation_2.plot(kind='bar', title='Second_Generation')
-    plt.show()
-    df_generation_3.plot(kind='bar', title='Third_Generation')
-    plt.show()
-    df_generation_4.plot(kind='bar', title='Fourth_Generation')
-    plt.show()
-    df_generation_5.plot(kind='bar', title='Fifth_Generation')
-    plt.show()
-    df_generation_6.plot(kind='bar', title='Sixth_Generation')
-    plt.show()
-    
+
+
+
+    for index, generation_name in enumerate(generation_list):
+        generation_tmp = generation_new[index]
+        tmp = pd.DataFrame(generation_tmp, columns=['win','lose'])
+        tmp.index = generation_list
+        tmp.drop(generation_name,inplace=True)
+        tmp.plot(kind='bar', title='Generation '+str(generation_name))
+        plt.show()
 
 if __name__=='__main__':
     pokemon_data = pd.read_csv('./pokemon.csv')
     combat_data = pd.read_csv('./new_combats.csv')
     #legendary_distribution(pokemon_data['Legendary'])
-    type_distribution(pokemon_data['Type 1'])
+    #type_distribution(pokemon_data['Type 1'])
     #type_distribution(pokemon_data['Type 2'])
     #legendary_compare(pokemon_data)
     #legendary_importance(pokemon_data, combat_data)
-    #generation_importance(pokemon_data, combat_data)
+    generation_importance(pokemon_data, combat_data)
     
 
